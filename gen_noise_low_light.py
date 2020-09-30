@@ -47,7 +47,7 @@ with torch.no_grad():
 
         # Second add noise(use code from CycleISP) input raw need to be [0,1]
         low_light_raw = torch.from_numpy(im).cuda()
-        shot_noise, read_noise = random_noise_levels_dnd() 
+        shot_noise, read_noise = random_noise_levels_dnd()
         shot_noise, read_noise = shot_noise.cuda(), read_noise.cuda()
         raw_noisy = add_noise(low_light_raw, shot_noise, read_noise, use_cuda=True)
         raw_noisy = torch.clamp(raw_noisy,0,1)  ### CLIP NOISE
@@ -60,11 +60,13 @@ with torch.no_grad():
         basename = os.path.basename(filename)
         path_jpg = os.path.join(JPG_DIR, basename.replace('nef', 'jpg'))
         cv2.imwrite(path_jpg, noise_jpg[:, :, ::-1])
-        
+
         path_raw = os.path.join(RAW_DIR, basename.replace('nef', 'pkl'))
         with open(path_raw, 'wb') as f:
             pickle.dump(raw.raw_image, f)
-        
+
+        '''
+        not save parameter because of the size (3xx GiB)
         path_param = os.path.join(PARAM_DIR, basename.replace('nef', 'pkl'))
         d = dict()
         d['variance'] = variance.cpu().detach().numpy()
@@ -72,3 +74,4 @@ with torch.no_grad():
         d['read_noise'] = read_noise.cpu().detach().numpy()
         with open(path_param, 'wb') as f:
             pickle.dump(d, f)
+        '''
